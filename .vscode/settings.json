@@ -1,0 +1,5 @@
+{
+  "yaml.schemas": {
+    "https://spec.openapis.org/oas/3.1/schema/2022-10-07": "file:///Users/liydu/Repos/PingCAP/tidb-cloud-openapi/ref/openai-openapi.yaml"
+  }
+}

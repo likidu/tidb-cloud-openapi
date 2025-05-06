@@ -1,0 +1,3157 @@
+openapi: 3.0.0
+info:
+  title: TiDB Cloud Serverless Open API
+  description: TiDB Cloud Serverless Open API
+  version: v1beta1
+servers:
+  - url: https://serverless.tidbapi.com/v1beta1
+    description: TiDB Cloud Serverless API server
+paths:
+  /v1beta1/clusters/{clusterId}/imports:startUpload:
+    post:
+      summary: Generate Upload url for importing data
+      operationId: ImportService_StartUpload
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/StartUploadResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into
+          required: true
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          description: The name of the file to import
+          required: true
+          schema:
+            type: string
+        - name: partNumber
+          in: query
+          description: The number of parts to split the file into
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: targetDatabase
+          in: query
+          description: The name of the database to import into
+          required: true
+          schema:
+            type: string
+        - name: targetTable
+          in: query
+          description: The name of the table to import into
+          required: true
+          schema:
+            type: string
+      tags:
+        - ImportService
+  /v1beta1/clusters/{clusterId}/imports:completeUpload:
+    post:
+      summary: Complete the upload
+      operationId: ImportService_CompleteUpload
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into
+          required: true
+          schema:
+            type: string
+        - name: uploadId
+          in: query
+          description: The ID of the upload
+          required: true
+          schema:
+            type: string
+      tags:
+        - ImportService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                $ref: '#/definitions/CompletePart'
+        required: true
+  /v1beta1/clusters/{clusterId}/imports:cancelUpload:
+    post:
+      summary: Cancel the upload
+      operationId: ImportService_CancelUpload
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into
+          required: true
+          schema:
+            type: string
+        - name: uploadId
+          in: query
+          description: The ID of the upload
+          required: true
+          schema:
+            type: string
+      tags:
+        - ImportService
+  /v1beta1/clusters/{clusterId}/imports:
+    get:
+      summary: Provides a list of import jobs
+      operationId: ImportService_ListImports
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ListImportsResp'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into.
+          required: true
+          schema:
+            type: string
+        - name: pageToken
+          in: query
+          description: Optional. The page token, default is empty.
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: Optional. The page size, default is 10.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: orderBy
+          in: query
+          description:
+            'Optional. List imports order by, separated by comma, default
+            is ascending. Example: "foo, bar desc". Supported field: create_time'
+          required: false
+          schema:
+            type: string
+      tags:
+        - ImportService
+    post:
+      summary: Create an import job
+      operationId: ImportService_CreateImport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Import'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ImportService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/ImportService.CreateImportBody'
+        required: true
+  /v1beta1/clusters/{clusterId}/imports/{id}:
+    get:
+      summary: Get an import detailed information
+      operationId: ImportService_GetImport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Import'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into.
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: The ID of the import.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ImportService
+  /v1beta1/clusters/{clusterId}/imports/{id}:cancel:
+    post:
+      summary: Cancel an import job
+      operationId: ImportService_CancelImport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: The ID of the cluster to import into.
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: The ID of the import.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ImportService
+  /v1beta1/backups:
+    get:
+      summary: Provides a list of backups.
+      operationId: BackupRestoreService_ListBackups
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1ListBackupsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: pageSize
+          in: query
+          description: Optional. The maximum number of clusters to return.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Optional. The page token from the previous response for pagination.
+          required: false
+          schema:
+            type: string
+        - name: clusterId
+          in: query
+          description: Required. The cluster ID to list backups for.
+          required: true
+          schema:
+            type: string
+      tags:
+        - BackupRestoreService
+  /v1beta1/backups/{backupId}:
+    get:
+      summary: Retrieves details of a specific backup.
+      operationId: BackupRestoreService_GetBackup
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1Backup'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: backupId
+          in: path
+          description: Required. The ID of the backup to be retrieved.
+          required: true
+          schema:
+            type: string
+      tags:
+        - BackupRestoreService
+    delete:
+      summary: Deletes a specific backup.
+      operationId: BackupRestoreService_DeleteBackup
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1Backup'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: backupId
+          in: path
+          description: Required. The ID of the backup to be retrieved.
+          required: true
+          schema:
+            type: string
+      tags:
+        - BackupRestoreService
+  /v1beta1/clusters:restore:
+    post:
+      operationId: BackupRestoreService_Restore
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1RestoreResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/rpcStatus'
+      parameters: []
+      tags:
+        - BackupRestoreService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/v1beta1RestoreRequest'
+        required: true
+  /v1beta1/clusters/{clusterId}/auditlogs:
+    get:
+      summary: List database audit logs.
+      operationId: AuditLogService_ListAuditLogs
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ListAuditLogsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          description:
+            Optional. The UTC date of the audit logs in the format of `YYYY-MM-DD`
+            (e.g. 2025-01-01).
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description:
+            Optional. The maximum number to return, default is 100, and the
+            maximum is 1000.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Optional. The page token from the previous response for pagination.
+          required: false
+          schema:
+            type: string
+      tags:
+        - AuditLogService
+  /v1beta1/clusters/{clusterId}/auditlogs:download:
+    post:
+      summary: Generate audit logs download url
+      operationId: AuditLogService_DownloadAuditLogs
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/DownloadAuditLogsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+      tags:
+        - AuditLogService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/AuditLogService.DownloadAuditLogsBody'
+        required: true
+  /v1beta1/clusters/{clusterId}/exports:
+    get:
+      summary: Provides a list of export jobs.
+      operationId: ExportService_ListExports
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ListExportsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The cluster ID to list exports for.
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description:
+            Optional. The maximum number of clusters to return. Default is
+            10.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Optional. The page token from the previous response for pagination.
+          required: false
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          description:
+            'Optional. List exports order by, separated by comma, default
+            is ascending. Example: "foo, bar desc". Supported field: create_time'
+          required: false
+          schema:
+            type: string
+      tags:
+        - ExportService
+    post:
+      summary: Create an export job
+      operationId: ExportService_CreateExport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Export'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ExportService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/ExportService.CreateExportBody'
+        required: true
+  /v1beta1/clusters/{clusterId}/exports/{exportId}:
+    get:
+      summary: Retrieves details of an export job.
+      operationId: ExportService_GetExport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Export'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: exportId
+          in: path
+          description: Required. The ID of the export to be retrieved.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ExportService
+    delete:
+      summary: Delete an export job
+      operationId: ExportService_DeleteExport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Export'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: exportId
+          in: path
+          description: Required. The ID of the export to be retrieved.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ExportService
+  /v1beta1/clusters/{clusterId}/exports/{exportId}:cancel:
+    post:
+      summary: Cancel a specific export job.
+      operationId: ExportService_CancelExport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Export'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: exportId
+          in: path
+          description: Required. The ID of the export to be retrieved.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ExportService
+  /v1beta1/clusters/{clusterId}/exports/{exportId}:download:
+    post:
+      summary: Generate download url
+      operationId: ExportService_DownloadExport
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/DownloadExportsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: exportId
+          in: path
+          description: Required. The ID of the export to be retrieved.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ExportService
+      deprecated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/ExportService.DownloadExportBody'
+        required: true
+  /v1beta1/clusters/{clusterId}/exports/{exportId}/files:
+    get:
+      summary: List export files
+      operationId: ExportService_ListExportFiles
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ListExportFilesResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: exportId
+          in: path
+          description: Required. The ID of the export.
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description: Optional. The maximum number to return.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Optional. The page token from the previous response for pagination.
+          required: false
+          schema:
+            type: string
+        - name: generateUrl
+          in: query
+          description: Optional. Whether return the file download urls, default is false
+          required: false
+          schema:
+            type: boolean
+      tags:
+        - ExportService
+  /v1beta1/clusters/{clusterId}/exports/{exportId}/files:download:
+    post:
+      summary: Generate export files download url
+      operationId: ExportService_DownloadExportFiles
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/DownloadExportFilesResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster.
+          required: true
+          schema:
+            type: string
+        - name: exportId
+          in: path
+          description: Required. The ID of the export.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ExportService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/ExportService.DownloadExportFilesBody'
+        required: true
+  /v1beta1/clusters/{clusterId}/branches:
+    get:
+      summary: Lists information about branches.
+      operationId: BranchService_ListBranches
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ListBranchesResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the project to which the clusters belong.
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          description:
+            'Optional. Requested page size. Server may return fewer items
+            than
+
+            requested. If unspecified, server will pick an appropriate default.'
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description:
+            Optional. A token identifying a page of results the server should
+            return.
+          required: false
+          schema:
+            type: string
+      tags:
+        - BranchService
+    post:
+      summary: Creates a branch.
+      operationId: BranchService_CreateBranch
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Branch'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The cluster ID of the branch
+          required: true
+          schema:
+            type: string
+      tags:
+        - BranchService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Branch'
+        required: true
+  /v1beta1/clusters/{clusterId}/branches/{branchId}:
+    get:
+      summary: Gets information about a branch.
+      operationId: BranchService_GetBranch
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Branch'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The cluster ID of the branch
+          required: true
+          schema:
+            type: string
+        - name: branchId
+          in: path
+          description: Required. The branch ID
+          required: true
+          schema:
+            type: string
+        - name: view
+          in: query
+          description:
+            "Optional. The view of the branch to return. Defaults to FULL\n\
+            \n - BASIC: Basic response contains basic information for a branch.\n -\
+            \ FULL: FULL response contains all detailed information for a branch."
+          required: false
+          schema:
+            type: string
+            enum:
+              - BASIC
+              - FULL
+      tags:
+        - BranchService
+    delete:
+      summary: Deletes a branch.
+      operationId: BranchService_DeleteBranch
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Branch'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The cluster ID of the branch
+          required: true
+          schema:
+            type: string
+        - name: branchId
+          in: path
+          description: Required. The branch ID
+          required: true
+          schema:
+            type: string
+      tags:
+        - BranchService
+  /v1beta1/clusters/{clusterId}/branches/{branchId}:reset:
+    post:
+      summary: Resets a branch.
+      operationId: BranchService_ResetBranch
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Branch'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Status'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The cluster ID of the branch
+          required: true
+          schema:
+            type: string
+        - name: branchId
+          in: path
+          description: Required. The branch ID
+          required: true
+          schema:
+            type: string
+      tags:
+        - BranchService
+  /clusters:
+    get:
+      summary: Provides a list of TiDB Cloud Serverless clusters in a project.
+      operationId: ServerlessService_ListClusters
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1ListClustersResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: pageSize
+          in: query
+          description: Optional. The maximum number of clusters to return.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Optional. The page token from the previous response for pagination.
+          required: false
+          schema:
+            type: string
+        - name: filter
+          in: query
+          description: Optional. The filter expression to filter clusters.
+          required: false
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          description: Optional. The order by expression for sorting clusters.
+          required: false
+          schema:
+            type: string
+        - name: skip
+          in: query
+          description:
+            'The number of individual resources to skip before starting to
+            return results.
+
+            If the skip value causes the cursor to move past the end of the collection,
+
+            the response will be 200 OK with an empty result set and no next_page_token.'
+          required: false
+          schema:
+            type: integer
+            format: int32
+      tags:
+        - ServerlessService
+    post:
+      summary: Creates a new TiDB Serverless cluster.
+      operationId: ServerlessService_CreateCluster
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters: []
+      tags:
+        - ServerlessService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+        required: true
+  /clusters/{clusterId}:
+    get:
+      summary: Retrieves details of a specific TiDB Cloud Serverless cluster.
+      operationId: ServerlessService_GetCluster
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster to be retrieved.
+          required: true
+          schema:
+            type: string
+        - name: view
+          in: query
+          description:
+            "Optional. The level of detail to return for the cluster.\n\n\
+            \ - BASIC: Only basic information about the cluster is returned.\n - FULL:\
+            \ All details about the cluster are returned."
+          required: false
+          schema:
+            type: string
+            enum:
+              - BASIC
+              - FULL
+      tags:
+        - ServerlessService
+    delete:
+      summary: Deletes a specific TiDB Cloud Serverless cluster.
+      operationId: ServerlessService_DeleteCluster
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: clusterId
+          in: path
+          description: Required. The ID of the cluster to be deleted.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ServerlessService
+  /clusters/{cluster.clusterId}:
+    patch:
+      summary: Partially updates a specific TiDB Cloud Serverless cluster.
+      operationId: ServerlessService_PartialUpdateCluster
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: cluster.clusterId
+          in: path
+          description: Output_only. The unique ID of the cluster.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ServerlessService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/v1beta1ServerlessServicePartialUpdateClusterBody'
+        required: true
+  /clusters/{clusterId}/password:
+    put:
+      summary: Changes the root password of a specific TiDB Cloud Serverless cluster.
+      operationId: ServerlessService_ChangeRootPassword
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1ChangeRootPasswordResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: clusterId
+          in: path
+          description:
+            Required. The ID of the cluster for which the password is to
+            be changed.
+          required: true
+          schema:
+            type: string
+      tags:
+        - ServerlessService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/ServerlessServiceChangeRootPasswordBody'
+        required: true
+  /regions:
+    get:
+      summary: Provides a list of available regions for TiDB Cloud Serverless clusters.
+      operationId: ServerlessService_ListRegions
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1ListRegionsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      tags:
+        - ServerlessService
+      parameters: []
+  /clusters:batchCreate:
+    post:
+      summary: 'Creates new TiDB Cloud Serverless clusters in batch.
+
+        The operation is atomic: it fails for all clusters or succeeds for all clusters
+        (no partial success).'
+      operationId: ServerlessService_BatchCreateClusters
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1BatchCreateClustersResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters: []
+      tags:
+        - ServerlessService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/v1beta1BatchCreateClustersRequest'
+        required: true
+  /clusters:batchGet:
+    get:
+      summary: 'Retrieves details of TiDB Cloud Serverless clusters in batch.
+
+        The operation is atomic: it fails for all clusters or succeeds for all clusters
+        (no partial success).
+
+        For situations requiring partial failures, ListClusters method should be used.'
+      operationId: ServerlessService_BatchGetClusters
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/v1beta1BatchGetClustersResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: clusterIds
+          in: query
+          description: A maximum of 1000 clusters can be get in a batch.
+          required: true
+          schema:
+            type: array
+        - name: view
+          in: query
+          description:
+            "Optional. The level of detail to return for the cluster.\n\n\
+            \ - BASIC: Only basic information about the cluster is returned.\n - FULL:\
+            \ All details about the cluster are returned."
+          required: false
+          schema:
+            type: string
+            enum:
+              - BASIC
+              - FULL
+      tags:
+        - ServerlessService
+components:
+  schemas:
+    Any:
+      type: object
+      properties:
+        '@type':
+          type: string
+      additionalProperties: {}
+    AzureBlobSource:
+      type: object
+      properties:
+        authType:
+          description: The Azure Blob URI of the import source.
+          allOf:
+            - $ref: '#/definitions/ImportAzureBlobAuthType.Enum'
+        sasToken:
+          type: string
+          description: The sas token. This field is input-only.
+        uri:
+          type: string
+          description:
+            'The Azure Blob URI of the import source. For example: azure://<account>.blob.core.windows.net/<container>/<path>
+            or https://<account>.blob.core.windows.net/<container>/<path>.'
+      required:
+        - authType
+        - uri
+    CSVFormat:
+      type: object
+      properties:
+        separator:
+          type: string
+          description: Separator of each value in CSV files. Default is ','.
+        delimiter:
+          type: string
+          x-nullable: true
+          description:
+            Delimiter of string type variables in CSV files. Default is
+            '"'.
+        header:
+          type: boolean
+          x-nullable: true
+          description: Import CSV files of the tables with header. Default is true.
+        notNull:
+          type: boolean
+          x-nullable: true
+          description: Whether the columns in CSV files can be null. Default is false.
+        'null':
+          type: string
+          x-nullable: true
+          description: Representation of null values in CSV files. Default is "\N".
+        backslashEscape:
+          type: boolean
+          x-nullable: true
+          description: Whether to escape backslashes in CSV files. Default is true.
+        trimLastSeparator:
+          type: boolean
+          x-nullable: true
+          description:
+            Whether to trim the last separator in CSV files. Default is
+            false.
+    CompletePart:
+      type: object
+      properties:
+        partNumber:
+          type: integer
+          format: int32
+          title: The part number
+        etag:
+          type: string
+          title: The ETag of the part
+      required:
+        - partNumber
+        - etag
+    CreationDetails:
+      type: object
+      properties:
+        importOptions:
+          description: Optional. The options of the import.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/ImportOptions'
+        source:
+          description: Optional. The source of the import.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/ImportSource'
+    GCSSource:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: The GCS URI of the import source.
+        authType:
+          description: The auth method of the import source.
+          allOf:
+            - $ref: '#/definitions/ImportGcsAuthType.Enum'
+        serviceAccountKey:
+          type: string
+          title: The service account key
+      required:
+        - uri
+        - authType
+    Import:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the import. DEPRECATED, use import_id instead.
+          readOnly: true
+        name:
+          type: string
+          description: The name of the import.
+          readOnly: true
+        clusterId:
+          type: string
+          description: The ID of the cluster to import into.
+          readOnly: true
+        totalSize:
+          type: string
+          format: uint64
+          description: The total size of the data imported.
+          readOnly: true
+        createTime:
+          type: string
+          format: date-time
+          description: The time the import was created.
+          readOnly: true
+        completeTime:
+          type: string
+          format: date-time
+          x-nullable: true
+          description: The time the import was completed.
+          readOnly: true
+        state:
+          description: The state of the import.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/ImportState.Enum'
+        completePercent:
+          type: integer
+          format: int64
+          description:
+            The process in percent of the import job, but doesn't include
+            the post-processing progress.
+          readOnly: true
+        message:
+          type: string
+          description: The output message of the import.
+          readOnly: true
+        createdBy:
+          type: string
+          description: The user who created the import.
+          readOnly: true
+        creationDetails:
+          description: The creation details of the import.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/CreationDetails'
+        importId:
+          type: string
+          description: The ID of the import.
+          readOnly: true
+    ImportAzureBlobAuthType.Enum:
+      type: string
+      enum:
+        - SAS_TOKEN
+      description: ' - SAS_TOKEN: The access method is sas token.'
+    ImportFileType.Enum:
+      type: string
+      enum:
+        - CSV
+        - SQL
+        - AURORA_SNAPSHOT
+        - PARQUET
+      description:
+        " - CSV: CSV type.\n - SQL: SQL type.\n - AURORA_SNAPSHOT: Aurora\
+        \ snapshot type.\n - PARQUET: Parquet type."
+    ImportGcsAuthType.Enum:
+      type: string
+      enum:
+        - SERVICE_ACCOUNT_KEY
+      description: ' - SERVICE_ACCOUNT_KEY: The access method is service account key.'
+    ImportOSSAuthType.Enum:
+      type: string
+      enum:
+        - ACCESS_KEY
+      description: ' - ACCESS_KEY: The access method is access key.'
+    ImportOptions:
+      type: object
+      properties:
+        fileType:
+          description: The exported file type.
+          allOf:
+            - $ref: '#/definitions/ImportFileType.Enum'
+        csvFormat:
+          description: Optional. The CSV format.
+          allOf:
+            - $ref: '#/definitions/CSVFormat'
+      required:
+        - fileType
+    ImportS3AuthType.Enum:
+      type: string
+      enum:
+        - ROLE_ARN
+        - ACCESS_KEY
+      description:
+        " - ROLE_ARN: The access method is role arn.\n - ACCESS_KEY: The\
+        \ access method is access key."
+    ImportS3CompatibleAuthType.Enum:
+      type: string
+      enum:
+        - ACCESS_KEY
+      description: ' - ACCESS_KEY: The access method is access key.'
+    ImportService.CreateImportBody:
+      type: object
+      properties:
+        importOptions:
+          description: The options of the import.
+          allOf:
+            - $ref: '#/definitions/ImportOptions'
+        source:
+          description: The source of the import.
+          allOf:
+            - $ref: '#/definitions/ImportSource'
+      required:
+        - importOptions
+        - source
+    ImportSource:
+      type: object
+      properties:
+        type:
+          description: The import source type.
+          allOf:
+            - $ref: '#/definitions/ImportSourceType.Enum'
+        local:
+          $ref: '#/definitions/LocalSource'
+        s3:
+          $ref: '#/definitions/S3Source'
+        gcs:
+          $ref: '#/definitions/GCSSource'
+        azureBlob:
+          $ref: '#/definitions/AzureBlobSource'
+        s3Compatible:
+          $ref: '#/definitions/S3CompatibleSource'
+        oss:
+          $ref: '#/definitions/OSSSource'
+      required:
+        - type
+    ImportSourceType.Enum:
+      type: string
+      enum:
+        - LOCAL
+        - S3
+        - GCS
+        - AZURE_BLOB
+        - S3_COMPATIBLE
+        - OSS
+      title:
+        "- LOCAL: Local source.\n - S3: S3 source.\n - GCS: gcs source\n - AZURE_BLOB:\
+        \ azure blob source\n - S3_COMPATIBLE: S3 compatible source\n - OSS: OSS source"
+    ImportState.Enum:
+      type: string
+      enum:
+        - PREPARING
+        - IMPORTING
+        - COMPLETED
+        - FAILED
+        - CANCELING
+        - CANCELED
+      description:
+        " - PREPARING: The import is preparing.\n - IMPORTING: The import\
+        \ is importing.\n - COMPLETED: The import is completed.\n - FAILED: The import\
+        \ is failed.\n - CANCELING: The import is canceling.\n - CANCELED: The import\
+        \ is canceled."
+    ListImportsResp:
+      type: object
+      properties:
+        imports:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/Import'
+          description: The imports.
+          readOnly: true
+        totalSize:
+          type: integer
+          format: int64
+          description: The total size of the imports.
+          readOnly: true
+        nextPageToken:
+          type: string
+          description: The next page token.
+          readOnly: true
+    LocalSource:
+      type: object
+      properties:
+        uploadId:
+          type: string
+          description: The upload id of import source file.
+        targetDatabase:
+          type: string
+          description: The target database of import.
+        targetTable:
+          type: string
+          description: The target table of import.
+        fileName:
+          type: string
+          description: The file name of import source file.
+          readOnly: true
+      required:
+        - uploadId
+        - targetDatabase
+        - targetTable
+    OSSSource:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: The OSS compatible URI of the import source.
+        authType:
+          description: The auth method of the import source.
+          allOf:
+            - $ref: '#/definitions/ImportOSSAuthType.Enum'
+        accessKey:
+          description: The access key.
+          allOf:
+            - $ref: '#/definitions/OSSSource.AccessKey'
+      required:
+        - uri
+        - authType
+    OSSSource.AccessKey:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The access key id.
+        secret:
+          type: string
+          description: The secret access key. This field is input-only.
+      required:
+        - id
+        - secret
+    S3CompatibleSource:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: The S3 compatible URI of the import source.
+        authType:
+          description: The auth method of the import source.
+          allOf:
+            - $ref: '#/definitions/ImportS3CompatibleAuthType.Enum'
+        accessKey:
+          description: The access key.
+          allOf:
+            - $ref: '#/definitions/S3CompatibleSource.AccessKey'
+        endpoint:
+          type: string
+          x-nullable: true
+          description: 'The custom S3 endpoint (HTTPS only).
+
+            Used for connecting to non-AWS S3-compatible storage, such as Cloudflare
+            or other cloud providers.
+
+            Ensure the endpoint is a valid HTTPS URL (e.g., "https://custom-s3.example.com").'
+      required:
+        - uri
+        - authType
+    S3CompatibleSource.AccessKey:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The access key id.
+        secret:
+          type: string
+          description: The secret access key. This field is input-only.
+      required:
+        - id
+        - secret
+    S3Source:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: The S3 URI of the import source.
+        authType:
+          description: The auth method of the import source.
+          allOf:
+            - $ref: '#/definitions/ImportS3AuthType.Enum'
+        roleArn:
+          type: string
+          title: The role arn
+        accessKey:
+          description: The access key.
+          allOf:
+            - $ref: '#/definitions/S3Source.AccessKey'
+      required:
+        - uri
+        - authType
+    S3Source.AccessKey:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The access key id.
+        secret:
+          type: string
+          description: The secret access key. This field is input-only.
+      required:
+        - id
+        - secret
+    StartUploadResponse:
+      type: object
+      properties:
+        uploadUrl:
+          type: array
+          items:
+            type: string
+          title: The URL to upload the file to
+          readOnly: true
+        uploadId:
+          type: string
+          title: The ID of the upload
+          readOnly: true
+    Status:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/Any'
+    RestoreRequestPointInTime:
+      type: object
+      properties:
+        clusterId:
+          type: string
+        backupTime:
+          type: string
+          format: date-time
+    RestoreRequestSnapshot:
+      type: object
+      properties:
+        backupId:
+          type: string
+    protobufAny:
+      type: object
+      properties:
+        '@type':
+          type: string
+          description:
+            "A URL/resource name that uniquely identifies the type of the\
+            \ serialized\nprotocol buffer message. This string must contain at least\n\
+            one \"/\" character. The last segment of the URL's path must represent\n\
+            the fully qualified name of the type (as in\n`path/google.protobuf.Duration`).\
+            \ The name should be in a canonical form\n(e.g., leading \".\" is not\
+            \ accepted).\n\nIn practice, teams usually precompile into the binary\
+            \ all types that they\nexpect it to use in the context of Any. However,\
+            \ for URLs which use the\nscheme `http`, `https`, or no scheme, one can\
+            \ optionally set up a type\nserver that maps type URLs to message definitions\
+            \ as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An\
+            \ HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in\
+            \ binary format, or produce an error.\n* Applications are allowed to cache\
+            \ lookup results based on the\n  URL, or have them precompiled into a\
+            \ binary to avoid any\n  lookup. Therefore, binary compatibility needs\
+            \ to be preserved\n  on changes to types. (Use versioned type names to\
+            \ manage\n  breaking changes.)\n\nNote: this functionality is not currently\
+            \ available in the official\nprotobuf release, and it is not used for\
+            \ type URLs beginning with\ntype.googleapis.com. As of May 2023, there\
+            \ are no widely used type server\nimplementations and no plans to implement\
+            \ one.\n\nSchemes other than `http`, `https` (or the empty scheme) might\
+            \ be\nused with implementation specific semantics."
+      additionalProperties: {}
+      description:
+        "`Any` contains an arbitrary serialized protocol buffer message\
+        \ along with a\nURL that describes the type of the serialized message.\n\n\
+        Protobuf library provides support to pack/unpack Any values in the form\n\
+        of utility functions or additional generated methods of the Any type.\n\n\
+        Example 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any\
+        \ any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(&foo)) {\n \
+        \     ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo\
+        \ foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class))\
+        \ {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance()))\
+        \ {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example\
+        \ 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any =\
+        \ Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n    \
+        \  any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in\
+        \ Go\n\n     foo := &pb.Foo{...}\n     any, err := anypb.New(foo)\n     if\
+        \ err != nil {\n       ...\n     }\n     ...\n     foo := &pb.Foo{}\n    \
+        \ if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe\
+        \ pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name'\
+        \ as the type URL and the unpack\nmethods only use the fully qualified type\
+        \ name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\"\
+        \ will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of\
+        \ an `Any` value uses the regular\nrepresentation of the deserialized, embedded\
+        \ message, with an\nadditional field `@type` which contains the type URL.\
+        \ Example:\n\n    package google.profile;\n    message Person {\n      string\
+        \ first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\"\
+        : \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": <string>,\n\
+        \      \"lastName\": <string>\n    }\n\nIf the embedded message type is well-known\
+        \ and has a custom JSON\nrepresentation, that representation will be embedded\
+        \ adding a field\n`value` which holds the custom JSON in addition to the `@type`\n\
+        field. Example (for message [google.protobuf.Duration][]):\n\n    {\n    \
+        \  \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"\
+        value\": \"1.212s\"\n    }"
+    rpcStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/protobufAny'
+    v1beta1Backup:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Output_only. The unique name of the backup.
+          readOnly: true
+        backupId:
+          type: string
+          description: Output_only. The unique ID of the backup.
+          readOnly: true
+        clusterId:
+          type: string
+          description: Required. The cluster ID that backup belong to.
+        createTime:
+          type: string
+          format: date-time
+          description: Output_only. Timestamp when the backup was created.
+          readOnly: true
+      description: Message for backup resource.
+      required:
+        - clusterId
+    v1beta1ListBackupsResponse:
+      type: object
+      properties:
+        backups:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/v1beta1Backup'
+          description: A list of clusters.
+        nextPageToken:
+          type: string
+          description: Token provided to retrieve the next page of results.
+        totalSize:
+          type: integer
+          format: int64
+          description: Total number of backups.
+    v1beta1RestoreRequest:
+      type: object
+      properties:
+        snapshot:
+          $ref: '#/definitions/RestoreRequestSnapshot'
+        pointInTime:
+          $ref: '#/definitions/RestoreRequestPointInTime'
+    v1beta1RestoreResponse:
+      type: object
+      properties:
+        clusterId:
+          type: string
+      required:
+        - clusterId
+    AuditLog:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the audit log.
+        size:
+          type: integer
+          format: int64
+          description: The size in bytes of the audit log.
+        url:
+          type: string
+          description: download url of the audit log.
+    AuditLogService.DownloadAuditLogsBody:
+      type: object
+      properties:
+        auditLogNames:
+          type: array
+          items:
+            type: string
+          description:
+            Required. The name of the audit logs to download. Up to 100
+            audit logs can be downloaded at the same time.
+      required:
+        - auditLogNames
+    DownloadAuditLogsResponse:
+      type: object
+      properties:
+        auditLogs:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/AuditLog'
+          description: The audit logs with the download url.
+    ListAuditLogsResponse:
+      type: object
+      properties:
+        auditLogs:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/AuditLog'
+          description: The audit logs without the download url.
+        nextPageToken:
+          type: string
+          description: Token provided to retrieve the next page of results.
+    AzureBlobTarget:
+      type: object
+      properties:
+        authType:
+          description: The Azure Blob URI of the export target.
+          allOf:
+            - $ref: '#/definitions/ExportAzureBlobAuthType.Enum'
+        sasToken:
+          type: string
+          description: The sas token. This field is input-only.
+        uri:
+          type: string
+          description:
+            'The Azure Blob URI of the export target. For example: azure://<account>.blob.core.windows.net/<container>/<path>
+            or https://<account>.blob.core.windows.net/<container>/<path>.'
+      required:
+        - authType
+        - uri
+    DownloadExportFilesResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/ExportFile'
+          description: The files with download url of the export.
+    DownloadExportsResponse:
+      type: object
+      properties:
+        downloads:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/DownloadUrl'
+          description: The download urls of the export.
+    DownloadUrl:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the download file.
+        url:
+          type: string
+          description: The download url.
+        size:
+          type: integer
+          format: int64
+          description: The size in bytes of the download file.
+    Export:
+      type: object
+      properties:
+        exportId:
+          type: string
+          description: Output_only. The unique ID of the export.
+          readOnly: true
+        name:
+          type: string
+          description: Output_only. The unique name of the export.
+          readOnly: true
+        clusterId:
+          type: string
+          description: Required. The cluster ID that export belong to.
+        createdBy:
+          type: string
+          description: Output_only. The creator of the export.
+          readOnly: true
+        state:
+          description: Output_only. The state of the export.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/ExportState.Enum'
+        exportOptions:
+          description: Optional. The options of the export.
+          allOf:
+            - $ref: '#/definitions/ExportOptions'
+        target:
+          description: Optional. The target of the export.
+          allOf:
+            - $ref: '#/definitions/ExportTarget'
+        reason:
+          type: string
+          x-nullable: true
+          description: Optional. The failed reason of the export.
+          readOnly: true
+        displayName:
+          type: string
+          description: 'Optional. The display name of the export. Default: SNAPSHOT_{snapshot_time}.'
+        createTime:
+          type: string
+          format: date-time
+          description: Output_only. Timestamp when the export was created.
+          readOnly: true
+        updateTime:
+          type: string
+          format: date-time
+          x-nullable: true
+          description: Output_only. Timestamp when the export was updated.
+          readOnly: true
+        completeTime:
+          type: string
+          format: date-time
+          x-nullable: true
+          description: Output_only. Timestamp when the export was completed.
+          readOnly: true
+        snapshotTime:
+          type: string
+          format: date-time
+          x-nullable: true
+          description: Output_only. Snapshot time of the export.
+          readOnly: true
+        expireTime:
+          type: string
+          format: date-time
+          x-nullable: true
+          description: Output_only. Expire time of the export.
+          readOnly: true
+      description: Message for export resource.
+      required:
+        - clusterId
+    ExportAzureBlobAuthType.Enum:
+      type: string
+      enum:
+        - SAS_TOKEN
+      description: ' - SAS_TOKEN: The access method is sas token.'
+    ExportCompressionType.Enum:
+      type: string
+      enum:
+        - GZIP
+        - SNAPPY
+        - ZSTD
+        - NONE
+      description:
+        " - GZIP: Gzip compression.\n - SNAPPY: Snappy compression.\n -\
+        \ ZSTD: Zstd compression.\n - NONE: No compression."
+    ExportFile:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the file.
+        size:
+          type: integer
+          format: int64
+          description: The size in bytes of the file.
+        url:
+          type: string
+          description: download url of the file.
+    ExportFileType.Enum:
+      type: string
+      enum:
+        - SQL
+        - CSV
+        - PARQUET
+      description: " - SQL: SQL type.\n - CSV: CSV type.\n - PARQUET: PARQUET type."
+    ExportGcsAuthType.Enum:
+      type: string
+      enum:
+        - SERVICE_ACCOUNT_KEY
+      description: ' - SERVICE_ACCOUNT_KEY: The access method is service account key.'
+    ExportOSSAuthType.Enum:
+      type: string
+      enum:
+        - ACCESS_KEY
+      description: ' - ACCESS_KEY: The access method is access key.'
+    ExportOptions:
+      type: object
+      properties:
+        fileType:
+          description: 'Optional. The exported file type. Default: CSV.'
+          allOf:
+            - $ref: '#/definitions/ExportFileType.Enum'
+        database:
+          type: string
+          title:
+            Optional. The specify database of the export. DEPRECATED, use filter
+            instead
+        table:
+          type: string
+          title:
+            Optional. The specify table of the export. DEPRECATED, use filter
+            instead
+        compression:
+          description: Optional. The compression of the export. Default is GZIP.
+          allOf:
+            - $ref: '#/definitions/ExportCompressionType.Enum'
+        filter:
+          description: Optional. The filter of the export. Default is whole cluster.
+          allOf:
+            - $ref: '#/definitions/ExportOptions.Filter'
+        csvFormat:
+          description: Optional. The format of the csv.
+          allOf:
+            - $ref: '#/definitions/ExportOptions.CSVFormat'
+        parquetFormat:
+          description: Optional. The format of the parquet.
+          allOf:
+            - $ref: '#/definitions/ExportOptions.ParquetFormat'
+    ExportOptions.CSVFormat:
+      type: object
+      properties:
+        separator:
+          type: string
+          description:
+            Separator of each value in CSV files. It is recommended to
+            use '|+|' or other uncommon character combinations. Default is ','.
+        delimiter:
+          type: string
+          x-nullable: true
+          description:
+            Delimiter of string type variables in CSV files. Default is
+            '"'.
+        nullValue:
+          type: string
+          x-nullable: true
+          description: Representation of null values in CSV files. Default is "\N".
+        skipHeader:
+          type: boolean
+          description: Export CSV files of the tables without header. Default is false.
+    ExportOptions.Filter:
+      type: object
+      properties:
+        sql:
+          type: string
+          description: Optional. Use SQL to filter the export.
+        table:
+          description: Optional. Use table-filter to filter the export.
+          allOf:
+            - $ref: '#/definitions/ExportOptions.Filter.Table'
+    ExportOptions.Filter.Table:
+      type: object
+      properties:
+        patterns:
+          type: array
+          items:
+            type: string
+          description: Optional. The table-filter expressions.
+        where:
+          type: string
+          description: Optional. Export only selected records.
+    ExportOptions.ParquetFormat:
+      type: object
+      properties:
+        compression:
+          description: Optional. The compression of the parquet. Default is ZSTD.
+          allOf:
+            - $ref: '#/definitions/ExportParquetCompressionType.Enum'
+    ExportParquetCompressionType.Enum:
+      type: string
+      enum:
+        - GZIP
+        - SNAPPY
+        - ZSTD
+        - NONE
+      description:
+        " - GZIP: The parquet compression type is GZIP.\n - SNAPPY: The\
+        \ parquet compression type is SNAPPY.\n - ZSTD: The parquet compression type\
+        \ is ZSTD.\n - NONE: No compression."
+    ExportS3AuthType.Enum:
+      type: string
+      enum:
+        - ROLE_ARN
+        - ACCESS_KEY
+      description:
+        " - ROLE_ARN: The access method is role arn.\n - ACCESS_KEY: The\
+        \ access method is access key."
+    ExportService.CreateExportBody:
+      type: object
+      properties:
+        exportOptions:
+          description: Optional. The options of the export.
+          allOf:
+            - $ref: '#/definitions/ExportOptions'
+        target:
+          description: Optional. The target of the export.
+          allOf:
+            - $ref: '#/definitions/ExportTarget'
+        displayName:
+          type: string
+          description: 'Optional. The display name of the export. Default: SNAPSHOT_{snapshot_time}.'
+    ExportService.DownloadExportBody:
+      type: object
+    ExportService.DownloadExportFilesBody:
+      type: object
+      properties:
+        fileNames:
+          type: array
+          items:
+            type: string
+          description: Required. The name of the files to download.
+      required:
+        - fileNames
+    ExportState.Enum:
+      type: string
+      enum:
+        - RUNNING
+        - SUCCEEDED
+        - FAILED
+        - CANCELED
+        - DELETED
+        - EXPIRED
+      description:
+        "Output Only. Export State.\n\n - RUNNING: The export job is being\
+        \ created.\n - SUCCEEDED: The export job is success.\n - FAILED: The export\
+        \ job is failed.\n - CANCELED: The export job is canceled.\n - DELETED: The\
+        \ export job is deleted.\n - EXPIRED: The export is expired, only local export\
+        \ will be expired."
+    ExportTarget:
+      type: object
+      properties:
+        type:
+          description: Optional. The exported file type. Default is LOCAL.
+          allOf:
+            - $ref: '#/definitions/ExportTargetType.Enum'
+        s3:
+          $ref: '#/definitions/S3Target'
+        gcs:
+          $ref: '#/definitions/GCSTarget'
+        azureBlob:
+          $ref: '#/definitions/AzureBlobTarget'
+        oss:
+          $ref: '#/definitions/OSSTarget'
+    ExportTargetType.Enum:
+      type: string
+      enum:
+        - LOCAL
+        - S3
+        - GCS
+        - AZURE_BLOB
+        - OSS
+      title:
+        "- LOCAL: Local target.\n - S3: S3 target.\n - GCS: gcs target\n - AZURE_BLOB:\
+        \ azure blob target\n - OSS: OSS target"
+    GCSTarget:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: The GCS URI of the export target.
+        authType:
+          description: The auth method of the export target.
+          allOf:
+            - $ref: '#/definitions/ExportGcsAuthType.Enum'
+        serviceAccountKey:
+          type: string
+          title: The service account key
+      required:
+        - uri
+        - authType
+    ListExportFilesResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/ExportFile'
+          description: The files of the export.
+        nextPageToken:
+          type: string
+          description: Token provided to retrieve the next page of results.
+    ListExportsResponse:
+      type: object
+      properties:
+        exports:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/Export'
+          description: A list of exports.
+        nextPageToken:
+          type: string
+          description: Token provided to retrieve the next page of results.
+        totalSize:
+          type: integer
+          format: int64
+          description: Total number of exports.
+    OSSTarget:
+      type: object
+      properties:
+        uri:
+          type: string
+          description: Required. The OSS URI.
+        authType:
+          description: Required. The auth method of the export target.
+          allOf:
+            - $ref: '#/definitions/ExportOSSAuthType.Enum'
+        accessKey:
+          description: The access key.
+          allOf:
+            - $ref: '#/definitions/OSSTarget.AccessKey'
+      required:
+        - uri
+        - authType
+    OSSTarget.AccessKey:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The access key id.
+        secret:
+          type: string
+          description: The access key secret. This field is input-only.
+      required:
+        - id
+        - secret
+    S3Target:
+      type: object
+      properties:
+        bucketUri:
+          type: string
+          description: Optional. The bucket URI of the s3. DEPRECATED, use uri instead.
+        uri:
+          type: string
+          description: Optional. The URI of the s3 folder.
+        authType:
+          description: Required. The auth method of the export s3.
+          allOf:
+            - $ref: '#/definitions/ExportS3AuthType.Enum'
+        accessKey:
+          description: Optional. The access key of the s3.
+          allOf:
+            - $ref: '#/definitions/S3Target.AccessKey'
+        roleArn:
+          type: string
+          description: Optional. The role arn of the s3.
+      required:
+        - authType
+    S3Target.AccessKey:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The access key id of the s3.
+        secret:
+          type: string
+          description: Input_Only. The secret access key of the s3.
+      required:
+        - id
+        - secret
+    Branch:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Output Only. The name of the resource.
+          readOnly: true
+        branchId:
+          type: string
+          description: Output only. The system-generated ID of the resource.
+          readOnly: true
+        displayName:
+          type: string
+          description:
+            Required. User-settable and human-readable display name for
+            the branch.
+        clusterId:
+          type: string
+          description: Output only. The cluster ID of this branch.
+          readOnly: true
+        parentId:
+          type: string
+          description: Optional. The parent ID of this branch.
+        createdBy:
+          type: string
+          description: Output only. The creator of the branch.
+          readOnly: true
+        state:
+          description: Output only. The state of this branch.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/Branch.State'
+        endpoints:
+          description: Optional. The endpoints of this branch.
+          allOf:
+            - $ref: '#/definitions/Branch.Endpoints'
+        userPrefix:
+          type: string
+          x-nullable: true
+          description:
+            'Output only. User name prefix of this branch. For each TiDB
+            Serverless branch,
+
+            TiDB Cloud generates a unique prefix to distinguish it from other branches.
+
+            Whenever you use or set a database user name, you must include the prefix
+            in the user name.'
+          readOnly: true
+        usage:
+          description:
+            Output only. Usage metrics of this branch. Only display in
+            FULL view.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/Branch.Usage'
+        createTime:
+          type: string
+          format: date-time
+          title: Output only. Create timestamp
+          readOnly: true
+        updateTime:
+          type: string
+          format: date-time
+          title: Output only. Update timestamp
+          readOnly: true
+        annotations:
+          type: object
+          additionalProperties:
+            type: string
+          description: Optional. The annotations of this branch..
+        parentDisplayName:
+          type: string
+          description: Output only. The parent display name of this branch.
+          readOnly: true
+        parentTimestamp:
+          type: string
+          format: date-time
+          x-nullable: true
+          description:
+            Optional. The point in time on the parent branch the branch
+            will be created from.
+      title: Message for branch
+      required:
+        - displayName
+    Branch.Endpoints:
+      type: object
+      properties:
+        public:
+          description: Optional. Public Endpoint for this branch.
+          allOf:
+            - $ref: '#/definitions/Branch.Endpoints.Public'
+        private:
+          description: Output only. Private Endpoint for this branch.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/Branch.Endpoints.Private'
+      description: Message for the Endpoints for this branch.
+    Branch.Endpoints.Private:
+      type: object
+      properties:
+        host:
+          type: string
+          description: Output Only. Host Name of Public Endpoint.
+          readOnly: true
+        port:
+          type: integer
+          format: int32
+          description: Output Only. Port of Public Endpoint.
+          readOnly: true
+        aws:
+          title: Message for AWS
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/Branch.Endpoints.Private.AWS'
+        gcp:
+          title: Message for GCP
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/Branch.Endpoints.Private.GCP'
+      description: Message for Private Endpoint for this branch.
+    Branch.Endpoints.Private.AWS:
+      type: object
+      properties:
+        serviceName:
+          type: string
+          description: Output Only. Service Name for Private Link Service.
+          readOnly: true
+        availabilityZone:
+          type: array
+          items:
+            type: string
+          description: Output Only. Availability Zone for Private Link Service.
+          readOnly: true
+      description: Message for AWS Private Link Service.
+    Branch.Endpoints.Private.GCP:
+      type: object
+      properties:
+        serviceAttachmentName:
+          type: string
+          description: Output Only. Target Service Account for Private Link Service.
+          readOnly: true
+      description: Message for GCP Private Link Service.
+    Branch.Endpoints.Public:
+      type: object
+      properties:
+        host:
+          type: string
+          title: Output Only. Host name of Public Endpoint
+          readOnly: true
+        port:
+          type: integer
+          format: int32
+          title: Output Only. Port of Public Endpoint
+          readOnly: true
+        disabled:
+          type: boolean
+          title: Optional. Disable Public Endpoint
+      description: Message for Public Endpoint for this branch.
+    Branch.State:
+      type: string
+      enum:
+        - CREATING
+        - ACTIVE
+        - DELETED
+        - MAINTENANCE
+        - RESTORING
+      description:
+        "Output Only. Branch State.\n\n - CREATING: The branch is being\
+        \ created.\n - ACTIVE: The branch is active and running.\n - DELETED: The\
+        \ branch is being deleted.\n - MAINTENANCE: The branch is under maintenance.\n\
+        \ - RESTORING: The branch is restoring."
+    Branch.Usage:
+      type: object
+      properties:
+        requestUnit:
+          type: string
+          format: int64
+          description:
+            Output Only. The latest value of Request Unit Metric for this
+            cluster.
+          readOnly: true
+        rowStorage:
+          type: number
+          format: double
+          description:
+            Output Only. The latest value of Row Storage Metric for this
+            cluster.
+          readOnly: true
+        columnarStorage:
+          type: number
+          format: double
+          description:
+            Output Only. The latest value of Columnar Storage Metric for
+            this cluster.
+          readOnly: true
+      description: Message for usage metrics for this cluster.
+    BranchView:
+      type: string
+      enum:
+        - BASIC
+        - FULL
+      description:
+        "View on branch. Pass this enum to control which subsets of fields\
+        \ to get.\n\n - BASIC: Basic response contains basic information for a branch.\n\
+        \ - FULL: FULL response contains all detailed information for a branch."
+    ListBranchesResponse:
+      type: object
+      properties:
+        branches:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/Branch'
+          title: The list of branches
+        nextPageToken:
+          type: string
+          description: A token identifying a page of results the server should return.
+        totalSize:
+          type: integer
+          format: int64
+          title: Total number of branches
+      title: Message for response to list branches
+    ClusterClusterPlan:
+      type: string
+      enum:
+        - STARTER
+        - ESSENTIAL
+      title: "- STARTER: alicloud starter plan\n - ESSENTIAL: alicloud essential plan"
+    ClusterHighAvailabilityType:
+      type: string
+      enum:
+        - ZONAL
+        - REGIONAL
+      title:
+        "- ZONAL: High availability within a single zone\n - REGIONAL: High availability\
+        \ across multiple zones within a region"
+    ClusterSpendingLimit:
+      type: object
+      properties:
+        monthly:
+          type: integer
+          format: int32
+          description: Optional. Maximum monthly spending limit in USD cents.
+      description: Message for spending limit configuration.
+    ClusterUsage:
+      type: object
+      properties:
+        requestUnit:
+          type: string
+          format: int64
+          description: Output_only. The Request Units used in this month.
+          readOnly: true
+        rowBasedStorage:
+          type: number
+          format: double
+          description: Output_only. The storage used on row-based storage in bytes.
+          readOnly: true
+        columnarStorage:
+          type: number
+          format: double
+          description: Output_only. The storage used on column-based storage in bytes.
+          readOnly: true
+      description: Message for usage statistics of a cluster.
+    EndpointsPrivate:
+      type: object
+      properties:
+        host:
+          type: string
+          description: Output_only. The hostname of the private endpoint.
+          readOnly: true
+        port:
+          type: integer
+          format: int32
+          description: Output_only. The port of the private endpoint.
+          readOnly: true
+        aws:
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/PrivateAWS'
+        gcp:
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/PrivateGCP'
+      description: Message for private endpoint to securely connect to the cluster.
+    EndpointsPublic:
+      type: object
+      properties:
+        host:
+          type: string
+          description: Output_only. The hostname of the public endpoint.
+          readOnly: true
+        port:
+          type: integer
+          format: int32
+          description: Output_only. The port of the public endpoint.
+          readOnly: true
+        disabled:
+          type: boolean
+          description: Optional. Whether the public endpoint is disabled.
+        authorizedNetworks:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/EndpointsPublicAuthorizedNetwork'
+          title: The list of networks that are allowed to connect to the cluster
+      description: Message for public endpoint to connect to the cluster.
+    EndpointsPublicAuthorizedNetwork:
+      type: object
+      properties:
+        startIpAddress:
+          type: string
+        endIpAddress:
+          type: string
+        displayName:
+          type: string
+      required:
+        - startIpAddress
+        - endIpAddress
+        - displayName
+    PrivateAWS:
+      type: object
+      properties:
+        serviceName:
+          type: string
+          description: Output_only. The AWS service name for private access.
+          readOnly: true
+        availabilityZone:
+          type: array
+          items:
+            type: string
+          description:
+            Output_only. The availability zones that the service is available
+            in.
+          readOnly: true
+      description: Message for AWS PrivateLink information.
+    PrivateGCP:
+      type: object
+      properties:
+        serviceAttachmentName:
+          type: string
+          description:
+            Output_only. The target GCP service attachment name for private
+            access.
+          readOnly: true
+      description: Message for GCP Private Service information.
+    ServerlessServiceChangeRootPasswordBody:
+      type: object
+      properties:
+        password:
+          type: string
+          description: Required. The new root password for the cluster.
+      description:
+        Message for requesting to change the root password of a TiDB Cloud
+        Serverless cluster.
+      required:
+        - password
+    commonv1beta1ClusterState:
+      type: string
+      enum:
+        - CREATING
+        - DELETING
+        - ACTIVE
+        - RESTORING
+        - MAINTENANCE
+        - DELETED
+        - INACTIVE
+        - UPGRADING
+        - IMPORTING
+        - MODIFYING
+        - PAUSING
+        - PAUSED
+        - RESUMING
+      description:
+        "Enum of possible states of a cluster.\n\n - CREATING: Cluster\
+        \ is being created.\n - DELETING: Cluster is being deleted.\n - ACTIVE: Cluster\
+        \ is active for use.\n - RESTORING: Cluster data is being restored.\n - MAINTENANCE:\
+        \ Cluster is under maintenance.\n - DELETED: Cluster has been deleted.\n -\
+        \ INACTIVE: Cluster is not active, but not being deleted.\n - UPGRADING: Cluster\
+        \ is being updated.\nOnly for Dedicated Cluster.\n - IMPORTING: Cluster is\
+        \ being imported.\nOnly for Dedicated Cluster.\n - MODIFYING: Cluster is being\
+        \ modified.\nOnly for Dedicated Cluster.\n - PAUSING: Cluster is being paused.\n\
+        Only for Dedicated Cluster.\n - PAUSED: Cluster is paused.\nOnly for Dedicated\
+        \ Cluster.\n - RESUMING: Cluster is resuming.\nOnly for Dedicated Cluster."
+    commonv1beta1Region:
+      type: object
+      properties:
+        name:
+          type: string
+          example: regions/aws-us-west-2
+          title: 'The unique name of the region.
+
+            Format: regions/{region_id}'
+          pattern: ^regions/(aws|gcp|azure)-(.+)$
+        regionId:
+          type: string
+          description: 'Format: {cloud_provider}-{region_code}
+
+            Region code: us-west-2, asia-east1.'
+          readOnly: true
+        cloudProvider:
+          description: The cloud provider for the region.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/v1beta1RegionCloudProvider'
+        displayName:
+          type: string
+          description: User-friendly display name of the region.
+          readOnly: true
+        provider:
+          type: string
+          x-nullable: true
+          description: 'Optional provider name for the region.
+
+            Only used for serverless cluster.
+
+            Deprecated.'
+          readOnly: true
+      description: A representation of a region for deploying TiDB clusters.
+    googlerpcStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: 'The status code, which should be an enum value of
+
+            [google.rpc.Code][google.rpc.Code].'
+        message:
+          type: string
+          description:
+            'A developer-facing error message, which should be in English.
+            Any
+
+            user-facing error message should be localized and sent in the
+
+            [google.rpc.Status.details][google.rpc.Status.details] field, or localized
+
+            by the client.'
+        details:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/protobufAny'
+          description:
+            'A list of messages that carry the error details.  There is
+            a common set of
+
+            message types for APIs to use.'
+      description:
+        'The `Status` type defines a logical error model that is suitable
+        for
+
+        different programming environments, including REST APIs and RPC APIs. It is
+
+        used by [gRPC](https://github.com/grpc). Each `Status` message contains
+
+        three pieces of data: error code, error message, and error details.
+
+
+        You can find out more about this error model and how to work with it in the
+
+        [API Design Guide](https://cloud.google.com/apis/design/errors).'
+    serverlessv1beta1ClusterView:
+      type: string
+      enum:
+        - BASIC
+        - FULL
+      description:
+        "Enum for the different types of detail view to be returned for\
+        \ a TiDB Cloud Serverless cluster.\n\n - BASIC: Only basic information about\
+        \ the cluster is returned.\n - FULL: All details about the cluster are returned."
+    tidb_cloud_open_apiserverlessv1beta1Cluster:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Output_only. The unique name of the cluster.
+          readOnly: true
+        clusterId:
+          type: string
+          description: Output_only. The unique ID of the cluster.
+          readOnly: true
+        displayName:
+          type: string
+          description: Required. User friendly display name of the cluster.
+        region:
+          description: Required. Region where the cluster will be created.
+          allOf:
+            - $ref: '#/definitions/commonv1beta1Region'
+        spendingLimit:
+          description: Optional. The spending limit for the cluster.
+          allOf:
+            - $ref: '#/definitions/ClusterSpendingLimit'
+        automatedBackupPolicy:
+          description: Optional. Automated backup policy to set on the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterAutomatedBackupPolicy'
+        endpoints:
+          description: Optional. The endpoints for connecting to the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterEndpoints'
+        rootPassword:
+          type: string
+          example: my-shining-password
+          maxLength: 64
+          minLength: 8
+          pattern: ^.{8,64}$
+        encryptionConfig:
+          description: Optional. Encryption settings for the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterEncryptionConfig'
+        highAvailabilityType:
+          $ref: '#/definitions/ClusterHighAvailabilityType'
+        version:
+          type: string
+          description: Output_only. The TiDB version of the cluster.
+          readOnly: true
+        createdBy:
+          type: string
+          description: Output_only. The email of the creator of the cluster.
+          readOnly: true
+        userPrefix:
+          type: string
+          description: Output_only. The unique prefix in SQL user name.
+          readOnly: true
+        state:
+          description: Output_only. The current state of the cluster.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/commonv1beta1ClusterState'
+        usage:
+          description: Output_only. Usage details of the cluster.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/ClusterUsage'
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Optional. The labels for the cluster.
+
+            tidb.cloud/organization. The label for the cluster organization id.
+
+            tidb.cloud/project. The label for the cluster project id.'
+        annotations:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'OUTPUT_ONLY. The annotations for the cluster.
+
+            tidb.cloud/has-set-password. The annotation for whether the cluster has
+            set password.
+
+            tidb.cloud/available-features. The annotation for the available features
+            of the cluster.'
+          readOnly: true
+        createTime:
+          type: string
+          format: date-time
+          description: Output_only. Timestamp when the cluster was created.
+          readOnly: true
+        updateTime:
+          type: string
+          format: date-time
+          description: Output_only. Timestamp when the cluster was last updated.
+          readOnly: true
+        auditLogConfig:
+          description: Optional. The audit log configuration for the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterAuditLogConfig'
+        clusterPlan:
+          description: Output_only. The plan of the cluster.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/ClusterClusterPlan'
+        autoScaling:
+          description: Optional. The auto scaling config for the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterAutoScaling'
+      description: Message for a serverless TiDB cluster resource.
+      required:
+        - displayName
+        - region
+    tidb_cloud_open_apiserverlessv1beta1CreateClusterRequest:
+      type: object
+      properties:
+        cluster:
+          description: Required. The cluster to be created.
+          allOf:
+            - $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+      description: Message for requesting to create a TiDB Cloud Serverless cluster.
+    tidb_cloud_open_apiserverlessv1beta1ListClustersResponse:
+      type: object
+      properties:
+        clusters:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+          description: A list of clusters.
+        nextPageToken:
+          type: string
+          description: Token provided to retrieve the next page of results.
+        totalSize:
+          type: integer
+          format: int64
+          description: Total number of available clusters.
+      description:
+        Responses message to the request for listing of TiDB Cloud Serverless
+        clusters.
+    tidb_cloud_open_apiserverlessv1beta1ListRegionsResponse:
+      type: object
+      properties:
+        regions:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/commonv1beta1Region'
+          description: A list of available regions.
+      description:
+        Responses message to the request for listing of available regions
+        in TiDB Cloud Serverless.
+    v1beta1BatchCreateClustersRequest:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1CreateClusterRequest'
+          description: 'The request message specifying the resources to create.
+
+            A maximum of 1000 clusters can be created in a batch.'
+      description:
+        Message for requesting to create a batch of TiDB Cloud Serverless
+        clusters.
+      required:
+        - requests
+    v1beta1BatchCreateClustersResponse:
+      type: object
+      properties:
+        clusters:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+          description: Clusters created.
+      description:
+        Responses message to the request for creating a batch of TiDB Cloud
+        Serverless clusters.
+    v1beta1BatchGetClustersResponse:
+      type: object
+      properties:
+        clusters:
+          type: array
+          items:
+            type: object
+            $ref: '#/definitions/tidb_cloud_open_apiserverlessv1beta1Cluster'
+          description: Clusters created.
+      description:
+        Responses message to the request for retrieving a batch of TiDB
+        Cloud Serverless clusters.
+    v1beta1ChangeRootPasswordResponse:
+      type: object
+      description:
+        Responses message to the request for changing the root password
+        of a TiDB Cloud Serverless cluster.
+    v1beta1ClusterAuditLogConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          x-nullable: true
+          description: Optional. Whether audit log is enabled.
+        unredacted:
+          type: boolean
+          x-nullable: true
+          description: Optional. Whether unredacted the audit log.
+      description: Message for audit log configuration.
+    v1beta1ClusterAutoScaling:
+      type: object
+      properties:
+        minRcu:
+          type: integer
+          format: int64
+        maxRcu:
+          type: integer
+          format: int64
+      description: Message for auto scaling configuration.
+    v1beta1ClusterAutomatedBackupPolicy:
+      type: object
+      properties:
+        startTime:
+          type: string
+          description:
+            Optional. When automated backups should start, in HH:mm format,
+            UTC.
+        retentionDays:
+          type: integer
+          format: int32
+          description: OUTPUT_ONLY. Number of days to retain automated backups.
+          readOnly: true
+      description: Message for automated backup configuration for a cluster.
+    v1beta1ClusterEncryptionConfig:
+      type: object
+      properties:
+        enhancedEncryptionEnabled:
+          type: boolean
+          description: Optional. Whether enhanced encryption for cluster data is enabled.
+      description: Message for encryption settings for a cluster.
+    v1beta1ClusterEndpoints:
+      type: object
+      properties:
+        public:
+          description: Optional. Public endpoint to connect to the cluster.
+          allOf:
+            - $ref: '#/definitions/EndpointsPublic'
+        private:
+          description: Output_only. Private endpoint to securely connect to the cluster.
+          readOnly: true
+          allOf:
+            - $ref: '#/definitions/EndpointsPrivate'
+      description: Message for endpoint information for connecting to a cluster.
+    v1beta1PartialUpdateClusterRequestPartialUpdateCluster:
+      type: object
+      properties:
+        clusterId:
+          type: string
+          description: Output_only. The unique ID of the cluster.
+        displayName:
+          type: string
+          description: Required. User friendly display name of the cluster.
+        spendingLimit:
+          description: Optional. The spending limit for the cluster.
+          allOf:
+            - $ref: '#/definitions/ClusterSpendingLimit'
+        automatedBackupPolicy:
+          description: Optional. Automated backup policy to set on the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterAutomatedBackupPolicy'
+        endpoints:
+          description: Optional. The endpoints for connecting to the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterEndpoints'
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Optional. The labels for the cluster.
+
+            tidb.cloud/organization. The label for the cluster organization id.
+
+            tidb.cloud/project. The label for the cluster project id.'
+        auditLogConfig:
+          description: Optional. The audit log configuration for the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterAuditLogConfig'
+        autoScaling:
+          description: Optional. The auto scaling config for the cluster.
+          allOf:
+            - $ref: '#/definitions/v1beta1ClusterAutoScaling'
+      required:
+        - clusterId
+    v1beta1RegionCloudProvider:
+      type: string
+      enum:
+        - aws
+        - gcp
+        - azure
+        - alicloud
+      description:
+        "Enum of cloud provider names.\n\n - aws: Amazon Web Services.\n\
+        \ - gcp: Google Cloud Platform.\n - azure: Microsoft Azure.\n - alicloud:\
+        \ Alibaba Cloud"
+    v1beta1ServerlessServicePartialUpdateClusterBody:
+      type: object
+      properties:
+        cluster:
+          type: object
+          properties:
+            displayName:
+              type: string
+              description: Required. User friendly display name of the cluster.
+            spendingLimit:
+              description: Optional. The spending limit for the cluster.
+              allOf:
+                - $ref: '#/definitions/ClusterSpendingLimit'
+            automatedBackupPolicy:
+              description: Optional. Automated backup policy to set on the cluster.
+              allOf:
+                - $ref: '#/definitions/v1beta1ClusterAutomatedBackupPolicy'
+            endpoints:
+              description: Optional. The endpoints for connecting to the cluster.
+              allOf:
+                - $ref: '#/definitions/v1beta1ClusterEndpoints'
+            labels:
+              type: object
+              additionalProperties:
+                type: string
+              description: 'Optional. The labels for the cluster.
+
+                tidb.cloud/organization. The label for the cluster organization id.
+
+                tidb.cloud/project. The label for the cluster project id.'
+            auditLogConfig:
+              description: Optional. The audit log configuration for the cluster.
+              allOf:
+                - $ref: '#/definitions/v1beta1ClusterAuditLogConfig'
+            autoScaling:
+              description: Optional. The auto scaling config for the cluster.
+              allOf:
+                - $ref: '#/definitions/v1beta1ClusterAutoScaling'
+          description: Required. The cluster to be updated.
+          title: Required. The cluster to be updated.
+        updateMask:
+          type: string
+          description:
+            Required. The update mask indicating which fields are to be
+            updated.
+      description:
+        Message for requesting a partial update on a TiDB Cloud Serverless
+        cluster.
+      required:
+        - updateMask
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerAuth: []

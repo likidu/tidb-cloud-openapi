@@ -1,0 +1,117 @@
+openapi: 3.1.0
+info:
+  title: TiDB Cloud Starter API
+  description: API specification for TiDB Cloud Starter
+  version: 1.0.0
+  contact:
+    name: TiDB Cloud Support
+    url: https://docs.pingcap.com/tidbcloud/
+    email: support@pingcap.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://cloud.tidbapi.com/v1
+    description: Production server
+
+paths:
+  /regions:
+    get:
+      operationId: listRegions
+      summary: Provides a list of available regions for TiDB Cloud Starter clusters.
+      parameters:
+        - name: servicePlan
+          in: query
+          description: Filter regions by service plan.
+          schema:
+            $ref: '#/components/schemas/TiDBCloudTiers'
+          required: false
+        - name: cloudProvider
+          in: query
+          description: Filter regions by cloud provider.
+          schema:
+            $ref: '#/components/schemas/CloudProvider'
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRegionsResponse'
+
+components:
+  schemas:
+    TiDBCloudTiers:
+      type: string
+      description: Available TiDB Cloud service tiers.
+      enum:
+        - starter
+        - essential
+        - premium
+        - byoc
+    CloudProvider:
+      type: string
+      description: Supported cloud providers.
+      enum:
+        - alicloud
+        - aws
+        - azure
+        - gcp
+    Region:
+      type: object
+      description: Represents a TiDB Cloud region with its identifier and display information.
+      properties:
+        id:
+          type: string
+          description: 'Region identifier, format: {cloud_provider}-{region_code}'
+          example: aws-us-east-1
+        name:
+          type: string
+          description: Region name
+          example: regions/aws-us-west-2
+          pattern: ^regions/(aws|gcp|azure)-(.+)$
+        cloudProvider:
+          description: The cloud provider for the region.
+          $ref: '#/components/schemas/CloudProvider'
+        displayName:
+          type: string
+          description: Human-readable region name.
+        servicePlan:
+          type: array
+          description: Available service plans for the region.
+          items:
+            $ref: '#/components/schemas/TiDBCloudTiers'
+      required:
+        - id
+        - name
+        - cloudProvider
+        - displayName
+        - servicePlan
+    ListRegionsResponse:
+      type: object
+      properties:
+        regions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Region'
+      required:
+        - regions
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses: {}
+  parameters: {}
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: clusters
+    description: Operations about clusters
+  - name: backups
+    description: Operations about backups
